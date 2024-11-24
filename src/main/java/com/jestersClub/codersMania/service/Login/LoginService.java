@@ -2,38 +2,42 @@ package com.jestersClub.codersMania.service.Login;
 
 import com.jestersClub.codersMania.entity.Users;
 import com.jestersClub.codersMania.repositories.UserRepository;
+import com.jestersClub.codersMania.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 @Service
 public class LoginService {
-    @Autowired
-    UserRepository userRepository;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
-    public boolean login(String email ,String password){
-        Users users = userRepository.findByEmail(email);
-        String pass = users.getPassword();
-        if (passwordEncoder.matches(password, pass)) {
-            System.out.println("true");
-            boolean isVerified = users.getIsVerified();
-            if (isVerified == true) {
-                return true;
-            } else {
-                System.out.println("Unverified user");
-                return false;
-            }
+    private UserRepository userRepository;
 
-        } else {
-            System.out.println("wrong password");
-            return false;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtils jwtUtil;
+
+    public String login(String email, String password) {
+        Users user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            System.out.println("User not found");
+            return null;
         }
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            System.out.println("Wrong password");
+            return null;
+        }
+
+        if (!user.getIsVerified()) {
+            System.out.println("Unverified user");
+            return null;
+        }
+
+        // Generate JWT token
+        return jwtUtil.generateToken(email);
     }
-
-
-
 }

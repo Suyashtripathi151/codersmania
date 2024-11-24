@@ -1,7 +1,10 @@
 package com.jestersClub.codersMania.configuration;
 
+import com.jestersClub.codersMania.filter.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,24 +17,35 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final JwtFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable() // Disable CSRF for API requests
+                .csrf().disable()
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/login",
-                                "register/deleteAll",
-                                "/register/**").permitAll() // Allow all subpaths of /register
-                        .anyRequest().authenticated() // All other requests require authentication
+                        .requestMatchers("/login").permitAll() // Open endpoints
+                        .anyRequest().authenticated() // Secure all other endpoints
                 )
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Make the app stateless
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Stateless sessions
+
+        // Add JWT filter before UsernamePasswordAuthenticationFilter
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Using BCrypt for password encoding
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }
