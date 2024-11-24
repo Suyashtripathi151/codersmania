@@ -14,7 +14,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/register")
 public class RegisterController {
-
     @Autowired
     private RegisterService registerService;
 
