@@ -14,7 +14,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/register")
 public class RegisterController {
-
     @Autowired
     private RegisterService registerService;
 
@@ -36,7 +35,7 @@ public class RegisterController {
         }
     }
 
-    @GetMapping("/verification/{token}")
+    @PostMapping("/verification/{token}")
     public ResponseEntity<HashMap<String, Object>> confirmEmail(
             @PathVariable("token") String token,
             @RequestBody HashMap<String, String> emailAndPassword) {

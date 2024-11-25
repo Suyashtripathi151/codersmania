@@ -1,4 +1,4 @@
-package com.jestersClub.codersMania.entity;
+package com.jestersClub.codersMania.utils;
 
 public enum Category {
 
