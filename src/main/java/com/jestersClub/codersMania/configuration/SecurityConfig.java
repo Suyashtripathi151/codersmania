@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .and()
                 .csrf().disable()
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/login", "/register/**").permitAll() // Open endpoints
+                        .requestMatchers("/login", "/register/**","/profile/**").permitAll() // Open endpoints
                         .anyRequest().authenticated() // Secure all other endpoints
                 )
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Stateless sessions
